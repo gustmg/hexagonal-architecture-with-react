@@ -1,10 +1,14 @@
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import { useState } from "react";
 import { Button, Divider, TextField } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { loginCustomer } from "../../store/customerSlice.ts";
+import { AppDispatch } from "../../main.tsx";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch: AppDispatch = useDispatch();
 
   return (
     <Grid container spacing={4} display="flex" justifyContent="center">
@@ -26,7 +30,11 @@ function LoginForm() {
         />
       </Grid>
       <Grid xs={6}>
-        <Button variant="contained" fullWidth>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => dispatch(loginCustomer({ email, password }))}
+        >
           Iniciar sesión
         </Button>
       </Grid>
