@@ -2,16 +2,34 @@ import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import { useState } from "react";
 import { Button, Divider, TextField } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { loginCustomer } from "../../store/customerSlice.ts";
+import { registerCustomer } from "../../store/customerSlice.ts";
 import { AppDispatch } from "../../main.tsx";
 
-function LoginForm() {
+function RegisterForm() {
+  const [name, setName] = useState("");
+  const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch: AppDispatch = useDispatch();
 
   return (
     <Grid container spacing={4} display="flex" justifyContent="center">
+      <Grid xs={12}>
+        <TextField
+          label="Nombre"
+          value={name}
+          fullWidth
+          onChange={(event) => setName(event.target.value)}
+        />
+      </Grid>
+      <Grid xs={12}>
+        <TextField
+          label="Apellidos"
+          value={lastname}
+          fullWidth
+          onChange={(event) => setLastname(event.target.value)}
+        />
+      </Grid>
       <Grid xs={12}>
         <TextField
           label="Correo electrónico"
@@ -33,9 +51,13 @@ function LoginForm() {
         <Button
           variant="contained"
           fullWidth
-          onClick={() => dispatch(loginCustomer({ email, password }))}
+          onClick={() =>
+            dispatch(
+              registerCustomer({ name, lastName: lastname, email, password })
+            )
+          }
         >
-          Iniciar sesión
+          Registrarse
         </Button>
       </Grid>
       <Grid xs={12}>
@@ -43,11 +65,11 @@ function LoginForm() {
       </Grid>
       <Grid xs={6}>
         <Button variant="outlined" fullWidth>
-          Registrarse
+          Iniciar sesión
         </Button>
       </Grid>
     </Grid>
   );
 }
 
-export default LoginForm;
+export default RegisterForm;
