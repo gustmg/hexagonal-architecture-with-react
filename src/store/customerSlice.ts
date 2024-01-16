@@ -9,6 +9,7 @@ import { ICustomerDto } from "../modules/customer/domain/CustomerDto";
 import { openSnackbar } from "./snackbarSlice";
 import register from "../modules/customer/application/register/register";
 import { CustomerRegistrationDto } from "../modules/customer/domain/CustomerRegistrationDto";
+import { router } from "../main";
 
 const repository = createLocalStorageCustomerRepository();
 
@@ -99,6 +100,7 @@ export const customerSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(loginCustomer.fulfilled, (state, action) => {
       state.customer = new CustomerEntity().fromCustomerDto(action.payload);
+      router.navigate("/home");
     });
   },
 });
