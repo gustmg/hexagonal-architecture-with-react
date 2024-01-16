@@ -13,7 +13,7 @@ import RegisterPage from "./pages/RegisterPage.tsx";
 
 export type AppDispatch = typeof store.dispatch;
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
