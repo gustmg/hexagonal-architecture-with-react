@@ -14,6 +14,7 @@ import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { setCustomer, updateCustomerData } from "../../store/customerSlice";
+import { AppDispatch } from "../../main";
 
 function CompleteCustomerInfoForm() {
   const customer = useSelector((state: RootState) => state.customer.customer);
