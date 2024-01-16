@@ -1,15 +1,22 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { CustomerEntity } from "../modules/customer/domain/CustomerEntity";
+import {
+  CustomerEntity,
+  ICustomerEntity,
+} from "../modules/customer/domain/CustomerEntity";
 import { ICustomerLogin } from "../modules/customer/domain/CustomerLoginEntity";
 import { ICustomerRegistrationEntity } from "../modules/customer/domain/CustomerRegistrationEntity";
 import { IVehicleEntity } from "../modules/vehicle/domain/VehicleEntity";
 import login from "../modules/customer/application/login/login";
 import createLocalStorageCustomerRepository from "../modules/customer/infrastructure/LocalStorageCustomerRepository";
-import { ICustomerDto } from "../modules/customer/domain/CustomerDto";
+import {
+  CustomerDto,
+  ICustomerDto,
+} from "../modules/customer/domain/CustomerDto";
 import { openSnackbar } from "./snackbarSlice";
 import register from "../modules/customer/application/register/register";
 import { CustomerRegistrationDto } from "../modules/customer/domain/CustomerRegistrationDto";
 import { router } from "../main";
+import updateCustomer from "../modules/customer/application/update-customer/updateCustomer";
 
 const repository = createLocalStorageCustomerRepository();
 
@@ -84,6 +91,34 @@ export const registerCustomer = createAsyncThunk(
   }
 );
 
+export const updateCustomerData = createAsyncThunk(
+  "updateCustomerData",
+  async (customer: ICustomerEntity, { dispatch }): Promise<void> => {
+    try {
+      const payload = new CustomerDto().fromCustomerEntity(customer);
+      await updateCustomer(repository, payload);
+
+      dispatch(
+        openSnackbar({
+          type: "success",
+          text: "Datos actualizados correctamente!",
+          isOpen: true,
+        })
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar({
+          type: "error",
+          text: "Ocurrió un error al intentar actualizar los datos.",
+          isOpen: true,
+        })
+      );
+
+      throw error;
+    }
+  }
+);
+
 export const customerSlice = createSlice({
   name: "customer",
 
@@ -95,7 +130,11 @@ export const customerSlice = createSlice({
     customerVehicles: [] as IVehicleEntity[],
   },
 
-  reducers: {},
+  reducers: {
+    setCustomer: (state, action) => {
+      state.customer = { ...action.payload };
+    },
+  },
 
   extraReducers: (builder) => {
     builder.addCase(loginCustomer.fulfilled, (state, action) => {
@@ -104,5 +143,7 @@ export const customerSlice = createSlice({
     });
   },
 });
+
+export const { setCustomer } = customerSlice.actions;
 
 export default customerSlice.reducer;
