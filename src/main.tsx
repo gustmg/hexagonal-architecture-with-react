@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import { Provider } from "react-redux";
 import { store } from "./store/index.ts";
 import BaseSnackbar from "./components/base/BaseSnackbar/BaseSnackbar.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx";
 
 export type AppDispatch = typeof store.dispatch;
 
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
   },
   {
     path: "/home",
