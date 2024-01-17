@@ -5,7 +5,10 @@ import {
 } from "../modules/customer/domain/CustomerEntity";
 import { ICustomerLogin } from "../modules/customer/domain/CustomerLoginEntity";
 import { ICustomerRegistrationEntity } from "../modules/customer/domain/CustomerRegistrationEntity";
-import { IVehicleEntity } from "../modules/vehicle/domain/VehicleEntity";
+import {
+  IVehicleEntity,
+  VehicleEntity,
+} from "../modules/vehicle/domain/VehicleEntity";
 import login from "../modules/customer/application/login/login";
 import createLocalStorageCustomerRepository from "../modules/customer/infrastructure/LocalStorageCustomerRepository";
 import {
@@ -19,6 +22,7 @@ import { router } from "../main";
 import updateCustomer from "../modules/customer/application/update-customer/updateCustomer";
 import { VehicleDto } from "../modules/vehicle/domain/VehicleDto";
 import addVehicle from "../modules/customer/application/add-vehicle/addVehicle";
+import getCustomerVehicles from "../modules/customer/application/get-customer-vehicles/getCustomerVehicles";
 
 const repository = createLocalStorageCustomerRepository();
 
@@ -136,6 +140,8 @@ export const addCustomerVehicle = createAsyncThunk(
             isOpen: true,
           })
         );
+
+        dispatch(fetchCustomerVehicles());
       } else {
         throw new Error("No se ha seleccionado un vehículo para agregar");
       }
@@ -144,6 +150,30 @@ export const addCustomerVehicle = createAsyncThunk(
         openSnackbar({
           type: "error",
           text: "Ocurrió un error al intentar agregar el vehiculo.",
+          isOpen: true,
+        })
+      );
+
+      throw error;
+    }
+  }
+);
+
+export const fetchCustomerVehicles = createAsyncThunk(
+  "fetchCustomerVehicles",
+  async (_, { dispatch }): Promise<IVehicleEntity[]> => {
+    try {
+      const vehiclesMap = getCustomerVehicles(repository);
+      const vehiclesArray = Array.from(vehiclesMap.values());
+
+      return vehiclesArray.map((vehicleDto) =>
+        new VehicleEntity().fromVehicleDto(vehicleDto)
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar({
+          type: "error",
+          text: "Ocurrió un error al intentar cargar los vehículos.",
           isOpen: true,
         })
       );
@@ -174,6 +204,10 @@ export const customerSlice = createSlice({
     builder.addCase(loginCustomer.fulfilled, (state, action) => {
       state.customer = new CustomerEntity().fromCustomerDto(action.payload);
       router.navigate("/home");
+    });
+
+    builder.addCase(fetchCustomerVehicles.fulfilled, (state, action) => {
+      state.customerVehicles = action.payload;
     });
   },
 });
