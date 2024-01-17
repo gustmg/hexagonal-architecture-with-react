@@ -17,6 +17,8 @@ import register from "../modules/customer/application/register/register";
 import { CustomerRegistrationDto } from "../modules/customer/domain/CustomerRegistrationDto";
 import { router } from "../main";
 import updateCustomer from "../modules/customer/application/update-customer/updateCustomer";
+import { VehicleDto } from "../modules/vehicle/domain/VehicleDto";
+import addVehicle from "../modules/customer/application/add-vehicle/addVehicle";
 
 const repository = createLocalStorageCustomerRepository();
 
@@ -110,6 +112,38 @@ export const updateCustomerData = createAsyncThunk(
         openSnackbar({
           type: "error",
           text: "Ocurrió un error al intentar actualizar los datos.",
+          isOpen: true,
+        })
+      );
+
+      throw error;
+    }
+  }
+);
+
+export const addCustomerVehicle = createAsyncThunk(
+  "addCustomerVehicle",
+  async (vehicle: IVehicleEntity | null, { dispatch }): Promise<void> => {
+    try {
+      if (vehicle) {
+        const payload = new VehicleDto().fromVehicleEntity(vehicle);
+        await addVehicle(repository, payload);
+
+        dispatch(
+          openSnackbar({
+            type: "success",
+            text: "Vehiculo agregado correctamente!",
+            isOpen: true,
+          })
+        );
+      } else {
+        throw new Error("No se ha seleccionado un vehículo para agregar");
+      }
+    } catch (error) {
+      dispatch(
+        openSnackbar({
+          type: "error",
+          text: "Ocurrió un error al intentar agregar el vehiculo.",
           isOpen: true,
         })
       );
