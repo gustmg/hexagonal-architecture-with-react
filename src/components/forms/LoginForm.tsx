@@ -4,11 +4,13 @@ import { Button, Divider, TextField } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { loginCustomer } from "../../store/customerSlice.ts";
 import { AppDispatch } from "../../main.tsx";
+import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   return (
     <Grid container spacing={4} display="flex" justifyContent="center">
@@ -42,7 +44,11 @@ function LoginForm() {
         <Divider flexItem />
       </Grid>
       <Grid xs={6}>
-        <Button variant="outlined" fullWidth>
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={() => navigate("/register")}
+        >
           Registrarse
         </Button>
       </Grid>

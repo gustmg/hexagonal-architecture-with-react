@@ -10,10 +10,11 @@ import { Provider } from "react-redux";
 import { store } from "./store/index.ts";
 import BaseSnackbar from "./components/base/BaseSnackbar/BaseSnackbar.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
+import HomePage from "./pages/HomePage.tsx";
 
 export type AppDispatch = typeof store.dispatch;
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
@@ -24,7 +25,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <div>Test route</div>,
+    element: <HomePage />,
   },
 ]);
 

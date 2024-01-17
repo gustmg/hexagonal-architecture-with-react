@@ -1,14 +1,28 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { CustomerEntity } from "../modules/customer/domain/CustomerEntity";
+import {
+  CustomerEntity,
+  ICustomerEntity,
+} from "../modules/customer/domain/CustomerEntity";
 import { ICustomerLogin } from "../modules/customer/domain/CustomerLoginEntity";
 import { ICustomerRegistrationEntity } from "../modules/customer/domain/CustomerRegistrationEntity";
-import { IVehicleEntity } from "../modules/vehicle/domain/VehicleEntity";
+import {
+  IVehicleEntity,
+  VehicleEntity,
+} from "../modules/vehicle/domain/VehicleEntity";
 import login from "../modules/customer/application/login/login";
 import createLocalStorageCustomerRepository from "../modules/customer/infrastructure/LocalStorageCustomerRepository";
-import { ICustomerDto } from "../modules/customer/domain/CustomerDto";
+import {
+  CustomerDto,
+  ICustomerDto,
+} from "../modules/customer/domain/CustomerDto";
 import { openSnackbar } from "./snackbarSlice";
 import register from "../modules/customer/application/register/register";
 import { CustomerRegistrationDto } from "../modules/customer/domain/CustomerRegistrationDto";
+import { router } from "../main";
+import updateCustomer from "../modules/customer/application/update-customer/updateCustomer";
+import { VehicleDto } from "../modules/vehicle/domain/VehicleDto";
+import addVehicle from "../modules/customer/application/add-vehicle/addVehicle";
+import getCustomerVehicles from "../modules/customer/application/get-customer-vehicles/getCustomerVehicles";
 
 const repository = createLocalStorageCustomerRepository();
 
@@ -83,6 +97,92 @@ export const registerCustomer = createAsyncThunk(
   }
 );
 
+export const updateCustomerData = createAsyncThunk(
+  "updateCustomerData",
+  async (customer: ICustomerEntity, { dispatch }): Promise<void> => {
+    try {
+      const payload = new CustomerDto().fromCustomerEntity(customer);
+      await updateCustomer(repository, payload);
+
+      dispatch(
+        openSnackbar({
+          type: "success",
+          text: "Datos actualizados correctamente!",
+          isOpen: true,
+        })
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar({
+          type: "error",
+          text: "Ocurrió un error al intentar actualizar los datos.",
+          isOpen: true,
+        })
+      );
+
+      throw error;
+    }
+  }
+);
+
+export const addCustomerVehicle = createAsyncThunk(
+  "addCustomerVehicle",
+  async (vehicle: IVehicleEntity | null, { dispatch }): Promise<void> => {
+    try {
+      if (vehicle) {
+        const payload = new VehicleDto().fromVehicleEntity(vehicle);
+        await addVehicle(repository, payload);
+
+        dispatch(
+          openSnackbar({
+            type: "success",
+            text: "Vehiculo agregado correctamente!",
+            isOpen: true,
+          })
+        );
+
+        dispatch(fetchCustomerVehicles());
+      } else {
+        throw new Error("No se ha seleccionado un vehículo para agregar");
+      }
+    } catch (error) {
+      dispatch(
+        openSnackbar({
+          type: "error",
+          text: "Ocurrió un error al intentar agregar el vehiculo.",
+          isOpen: true,
+        })
+      );
+
+      throw error;
+    }
+  }
+);
+
+export const fetchCustomerVehicles = createAsyncThunk(
+  "fetchCustomerVehicles",
+  async (_, { dispatch }): Promise<IVehicleEntity[]> => {
+    try {
+      const vehiclesMap = getCustomerVehicles(repository);
+      const vehiclesArray = Array.from(vehiclesMap.values());
+
+      return vehiclesArray.map((vehicleDto) =>
+        new VehicleEntity().fromVehicleDto(vehicleDto)
+      );
+    } catch (error) {
+      dispatch(
+        openSnackbar({
+          type: "error",
+          text: "Ocurrió un error al intentar cargar los vehículos.",
+          isOpen: true,
+        })
+      );
+
+      throw error;
+    }
+  }
+);
+
 export const customerSlice = createSlice({
   name: "customer",
 
@@ -94,13 +194,24 @@ export const customerSlice = createSlice({
     customerVehicles: [] as IVehicleEntity[],
   },
 
-  reducers: {},
+  reducers: {
+    setCustomer: (state, action) => {
+      state.customer = { ...action.payload };
+    },
+  },
 
   extraReducers: (builder) => {
     builder.addCase(loginCustomer.fulfilled, (state, action) => {
       state.customer = new CustomerEntity().fromCustomerDto(action.payload);
+      router.navigate("/home");
+    });
+
+    builder.addCase(fetchCustomerVehicles.fulfilled, (state, action) => {
+      state.customerVehicles = action.payload;
     });
   },
 });
+
+export const { setCustomer } = customerSlice.actions;
 
 export default customerSlice.reducer;
